@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright 2010 Jeff Garzik
  * Copyright 2012-2014 pooler
  * Copyright 2014-2017 tpruvot
@@ -45,6 +45,7 @@
 #include "sia/sia-rpc.h"
 #include "crypto/xmr-rpc.h"
 #include "equi/equihash.h"
+#include "nightcap/nightcap.h"
 
 #include <cuda_runtime.h>
 
@@ -741,7 +742,10 @@ static bool work_decode(const json_t *val, struct work *work)
 	if ((opt_showdiff || opt_max_diff > 0.) && !allow_mininginfo)
 		calc_network_diff(work);
 
-	work->targetdiff = target_to_diff(work->target);
+	if (opt_algo == ALGO_NIGHTCAP)
+		work->targetdiff = nc_target_to_diff(work->target);
+	else
+		work->targetdiff = target_to_diff(work->target);
 
 	// for api stats, on longpoll pools
 	stratum_diff = work->targetdiff;
@@ -859,6 +863,7 @@ int share_result(int result, int pooln, double sharediff, const char *reason)
 			suppl, s, flag, solved);
 	if (reason) {
 		applog(LOG_WARNING, "reject reason: %s", reason);
+		exit(1);
 		if (!check_dups && strncasecmp(reason, "duplicate", 9) == 0) {
 			applog(LOG_WARNING, "enabling duplicates check feature");
 			check_dups = true;
@@ -1705,7 +1710,9 @@ static bool stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 		case ALGO_LYRA2Z:
 		case ALGO_TIMETRAVEL:
 		case ALGO_BITCORE:
-			work_set_target(work, sctx->job.diff / (256.0 * opt_difficulty));
+			break;
+		case ALGO_NIGHTCAP:
+			work_set_target(work, sctx->job.diff / (opt_difficulty));
 			break;
 		case ALGO_KECCAK:
 		case ALGO_LYRA2:
@@ -1723,8 +1730,11 @@ static bool stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 		// store for api stats
 		stratum_diff = sctx->job.diff;
 		if (opt_showdiff && work->targetdiff != stratum_diff)
-			snprintf(sdiff, 32, " (%.5f)", work->targetdiff);
-		applog(LOG_WARNING, "Stratum difficulty set to %g%s", stratum_diff, sdiff);
+			snprintf(sdiff, 32, " (%.8f)", work->targetdiff);
+		if (stratum_diff >= 1e6)
+			applog(LOG_WARNING, "Stratum difficulty set to %.1f M%s", stratum_diff/1e6, sdiff);
+		else
+			applog(LOG_WARNING, "Stratum difficulty set to %.5f%s", stratum_diff, sdiff);
 	}
 
 	return true;
@@ -2247,6 +2257,7 @@ static void *miner_thread(void *userdata)
 			case ALGO_X13:
 			case ALGO_WHIRLCOIN:
 			case ALGO_WHIRLPOOL:
+			case ALGO_NIGHTCAP:
 				minmax = 0x400000;
 				break;
 			case ALGO_X14:
@@ -2408,6 +2419,9 @@ static void *miner_thread(void *userdata)
 			break;
 		case ALGO_LYRA2v2:
 			rc = scanhash_lyra2v2(thr_id, &work, max_nonce, &hashes_done);
+			break;
+		case ALGO_NIGHTCAP:
+			rc = scanhash_nightcap(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_LYRA2Z:
 			rc = scanhash_lyra2Z(thr_id, &work, max_nonce, &hashes_done);
@@ -3861,7 +3875,7 @@ int main(int argc, char *argv[])
 	// get opt_quiet early
 	parse_single_opt('q', argc, argv);
 
-	printf("*** ccminer " PACKAGE_VERSION " for nVidia GPUs by tpruvot@github ***\n");
+	printf("*** ccminer " PACKAGE_VERSION " for nVidia GPUs by mangofusi@github ***\n");
 	if (!opt_quiet) {
 		const char* arch = is_x64() ? "64-bits" : "32-bits";
 #ifdef _MSC_VER
@@ -3872,7 +3886,7 @@ int main(int argc, char *argv[])
 			CUDART_VERSION/1000, (CUDART_VERSION % 1000)/10, arch);
 		printf("  Originally based on Christian Buchner and Christian H. project\n");
 		printf("  Include some kernels from alexis78, djm34, djEzo, tsiv and krnlx.\n\n");
-		printf("BTC donation address: 1AJdfCpLWPNoAMDfHF1wD5y8VgKSSTHxPo (tpruvot)\n\n");
+		printf("CHAN donation address: Ca2pFXAML9CxwUncDqkymMvsYejyDnpvcm (mangofusi)\n\n");
 	}
 
 	rpc_user = strdup("");

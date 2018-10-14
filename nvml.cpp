@@ -1,4 +1,4 @@
-﻿/*
+/*
  * A trivial little dlopen()-based wrapper library for the
  * NVIDIA NVML library, to allow runtime discovery of NVML on an
  * arbitrary system.  This is all very hackish and simple-minded, but

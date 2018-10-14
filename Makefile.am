@@ -87,6 +87,10 @@ ccminer_SOURCES += scrypt.cpp scrypt-jane.cpp \
     scrypt/fermi_kernel.cu scrypt/kepler_kernel.cu \
     scrypt/nv_kernel.cu scrypt/nv_kernel2.cu scrypt/titan_kernel.cu
 
+# nightcap
+ccminer_SOURCES += cloverhash.cu \
+    nightcap/nightcap.c
+
 if HAVE_NVML
 nvml_defs = -DUSE_WRAPNVML
 nvml_libs = -ldl

@@ -296,6 +296,7 @@ extern int scanhash_lbry(int thr_id, struct work *work, uint32_t max_nonce, unsi
 extern int scanhash_luffa(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
 extern int scanhash_lyra2(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
 extern int scanhash_lyra2v2(int thr_id,struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
+extern int scanhash_nightcap(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
 extern int scanhash_lyra2Z(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
 extern int scanhash_myriad(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
 extern int scanhash_neoscrypt(int thr_id, struct work *work, uint32_t max_nonce, unsigned long *hashes_done);
@@ -628,8 +629,10 @@ extern int timeval_subtract(struct timeval *result, struct timeval *x,
 	struct timeval *y);
 extern bool fulltest(const uint32_t *hash, const uint32_t *target);
 void diff_to_target(uint32_t* target, double diff);
+void nc_diff_to_target(uint32_t* target, double diff);
 void work_set_target(struct work* work, double diff);
 double target_to_diff(uint32_t* target);
+double nc_target_to_diff(uint32_t* target);
 extern void get_currentalgo(char* buf, int sz);
 
 // bignum

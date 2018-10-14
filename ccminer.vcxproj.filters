@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -111,6 +111,9 @@
     </Filter>
     <Filter Include="Source Files\CUDA\tribus">
       <UniqueIdentifier>{1e548d79-c217-4203-989a-a592fe2b2de3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CUDA\nightcap">
+      <UniqueIdentifier>{2c5eca7f-6d5b-4548-a582-eaac27dcd4b6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -347,6 +350,9 @@
     </ClCompile>
     <ClCompile Include="equi\blake2\blake2bx.cpp">
       <Filter>Source Files\equi</Filter>
+    </ClCompile>
+    <ClCompile Include="nightcap\nightcap.c">
+      <Filter>Source Files\CUDA\nightcap</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -595,6 +601,9 @@
     </ClInclude>
     <ClInclude Include="equi\equihash.h">
       <Filter>Source Files\equi</Filter>
+    </ClInclude>
+    <ClInclude Include="nightcap\nightcap.h">
+      <Filter>Source Files\CUDA\nightcap</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -966,6 +975,9 @@
     </CudaCompile>
     <CudaCompile Include="equi\cuda_equi.cu">
       <Filter>Source Files\equi</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cloverhash.cu">
+      <Filter>Source Files\CUDA</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>

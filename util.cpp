@@ -845,11 +845,48 @@ void diff_to_target(uint32_t *target, double diff)
 	}
 }
 
+void nc_diff_to_target(uint32_t *target, double diff)
+{
+	uint64_t m;
+	int k;
+
+	for (k = 6; k > 0 && diff > 1.0; k--)
+		diff /= 4294967296.0;
+	m = (uint64_t)(4294901760.0 / diff);
+	if (m == 0 && k == 6)
+		memset(target, 0xff, 32);
+	else {
+		memset(target, 0, 32);
+		target[k] = (uint32_t)m;
+		target[k + 1] = (uint32_t)(m >> 32);
+	}
+}
+
 // Only used by stratum pools
 void work_set_target(struct work* work, double diff)
 {
 	diff_to_target(work->target, diff);
 	work->targetdiff = diff;
+}
+
+double nc_target_to_diff(uint32_t* target)
+{
+  uint64_t diff64;
+  double numerator;
+  int powdiff;
+  uint8_t shift;
+		  // Normal stuff is horribly inaccurate, use this instead
+	  uint32_t diff_val = swab32(target[7]);   // NOTE: In this case, this needs to be swapped. Not sure if this also applies with atratum though.
+	  //diff_val = 458014203; // should be 853
+	  shift = (swab32(diff_val) & 0xff);
+	  diff64 = (diff_val & 0xffffff);
+	  if (!diff64) diff64 = 1;
+	  double d = (double)0x0000ffffUL / (double)diff64;
+	  for (int m = shift; m < 29; m++) d *= 256.0;
+	  for (int m = 29; m < shift; m++) d /= 256.0;
+
+	  applog(LOG_INFO, "Network difficulty %.3f", d);
+	  return d;
 }
 
 
